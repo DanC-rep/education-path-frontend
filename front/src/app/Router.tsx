@@ -6,6 +6,7 @@ import { LoginPage } from '../pages/Login/LoginPage.tsx'
 import { RegisterPage } from '../pages/Register/RegisterPage'
 import { ProfilePage } from '../pages/Profile/ProfilePage'
 import { ProtectedRoute } from '../shared/components/ProtectedRoute.tsx'
+import { RoadmapDetailsPage } from '../pages/RoadmapDetails/RoadmapDetailsPage'
 
 export const router = createBrowserRouter([
    {
@@ -33,6 +34,14 @@ export const router = createBrowserRouter([
             element: (
                <ProtectedRoute roles={['student']}>
                   <ProfilePage />
+               </ProtectedRoute>
+            ),
+         },
+         {
+            path: 'roadmaps/:id',
+            element: (
+               <ProtectedRoute roles={['student']}>
+                  <RoadmapDetailsPage />
                </ProtectedRoute>
             ),
          },
