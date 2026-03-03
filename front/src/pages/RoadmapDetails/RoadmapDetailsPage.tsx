@@ -97,7 +97,7 @@ const buildEdges = (lessons: RoadmapLesson[]) => {
             source: lesson.id,
             target: nextId,
             type: 'smoothstep',
-            animated: false,
+            animated: true,
             markerEnd: {
                type: MarkerType.ArrowClosed,
                width: 20,
@@ -119,9 +119,9 @@ const buildLayout = (lessons: RoadmapLesson[]) => {
    // Настройка графа для вертикального расположения
    graph.setGraph({
       rankdir: 'TB', // Top to Bottom
-      nodesep: 80, // Увеличено расстояние между узлами на одном уровне
-      ranksep: 120, // Увеличено расстояние между уровнями
-      edgesep: 50, // Увеличено расстояние между ребрами
+      nodesep: 200, // Увеличено расстояние между узлами на одном уровне
+      ranksep: 200, // Увеличено расстояние между уровнями
+      edgesep: 80, // Увеличено расстояние между ребрами
       marginx: 50,
       marginy: 50,
       ranker: 'tight-tree', // Используем алгоритм для более компактного дерева

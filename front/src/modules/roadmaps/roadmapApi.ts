@@ -33,6 +33,46 @@ export type RoadmapDetails = {
    lessons: RoadmapLesson[]
 }
 
+export type LessonLink = {
+   id: string
+   title: string
+}
+
+export type LessonDetails = {
+   id: string
+   title: string
+   content: string
+   isCompleted: boolean
+   type: LessonType
+   links: string[]
+   nextLessons: LessonLink[]
+   previousLessons: LessonLink[]
+}
+
+export type Skill = {
+   id: string
+   parentId: string | null
+   name: string
+   description: string
+   children: Skill[] | null
+}
+
+export type SkillsResponse = {
+   skills: Skill[]
+}
+
+export type CreateRoadmapRequest = {
+   skillsIds: string[]
+   userId: string
+   level: number
+   userAdditionalData?: string
+}
+
+export type CreateRoadmapResponse = {
+   id: string
+   title: string
+}
+
 export const roadmapApi = baseApi.injectEndpoints({
    endpoints: builder => ({
       getUserRoadmaps: builder.query<RoadmapsResponse, string>({
@@ -49,7 +89,35 @@ export const roadmapApi = baseApi.injectEndpoints({
          }),
          transformResponse: (res: Envelope<RoadmapDetails>) => res.result!,
       }),
+      getLessonById: builder.query<LessonDetails, string>({
+         query: lessonId => ({
+            url: `LearningPaths/roadmaps/lesson/${lessonId}`,
+            method: 'GET',
+         }),
+         transformResponse: (res: Envelope<LessonDetails>) => res.result!,
+      }),
+      getSkills: builder.query<SkillsResponse, void>({
+         query: () => ({
+            url: 'Skills/skills',
+            method: 'GET',
+         }),
+         transformResponse: (res: Envelope<SkillsResponse>) => res.result!,
+      }),
+      createRoadmap: builder.mutation<CreateRoadmapResponse, CreateRoadmapRequest>({
+         query: data => ({
+            url: 'LearningPaths/roadmaps',
+            method: 'POST',
+            body: data,
+         }),
+         transformResponse: (res: Envelope<CreateRoadmapResponse>) => res.result!,
+      }),
    }),
 })
 
-export const { useGetUserRoadmapsQuery, useGetRoadmapByIdQuery } = roadmapApi
+export const {
+   useGetUserRoadmapsQuery,
+   useGetRoadmapByIdQuery,
+   useGetLessonByIdQuery,
+   useGetSkillsQuery,
+   useCreateRoadmapMutation,
+} = roadmapApi

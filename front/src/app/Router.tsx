@@ -7,6 +7,8 @@ import { RegisterPage } from '../pages/Register/RegisterPage'
 import { ProfilePage } from '../pages/Profile/ProfilePage'
 import { ProtectedRoute } from '../shared/components/ProtectedRoute.tsx'
 import { RoadmapDetailsPage } from '../pages/RoadmapDetails/RoadmapDetailsPage'
+import { LessonDetailsPage } from '../pages/LessonDetails/LessonDetailsPage'
+import { CreateRoadmapPage } from '../pages/CreateRoadmap/CreateRoadmapPage'
 
 export const router = createBrowserRouter([
    {
@@ -38,10 +40,26 @@ export const router = createBrowserRouter([
             ),
          },
          {
+            path: 'roadmaps/create',
+            element: (
+               <ProtectedRoute roles={['student']}>
+                  <CreateRoadmapPage />
+               </ProtectedRoute>
+            ),
+         },
+         {
             path: 'roadmaps/:id',
             element: (
                <ProtectedRoute roles={['student']}>
                   <RoadmapDetailsPage />
+               </ProtectedRoute>
+            ),
+         },
+         {
+            path: 'lessons/:lessonId',
+            element: (
+               <ProtectedRoute roles={['student']}>
+                  <LessonDetailsPage />
                </ProtectedRoute>
             ),
          },
