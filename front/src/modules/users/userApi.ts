@@ -22,6 +22,15 @@ export type UserProfile = {
    adminAccount?: AccountDto | null
 }
 
+export type UpdateUserRequest = {
+   userId: string
+   fullName: {
+      name: string
+      surname: string
+      patronymic: string
+   }
+}
+
 export const userApi = baseApi.injectEndpoints({
    endpoints: builder => ({
       getUser: builder.query<UserProfile, string>({
@@ -29,9 +38,18 @@ export const userApi = baseApi.injectEndpoints({
             url: `/accounts/${userId}`,
             method: 'GET',
          }),
+         providesTags: (_result, _error, userId) => [{ type: 'User', id: userId }],
          transformResponse: (res: Envelope<UserProfile>) => res.result!,
+      }),
+      updateUser: builder.mutation<void, UpdateUserRequest>({
+         query: ({ userId, fullName }) => ({
+            url: `/accounts/${userId}`,
+            method: 'PUT',
+            body: { fullName },
+         }),
+         invalidatesTags: (_result, _error, { userId }) => [{ type: 'User', id: userId }],
       }),
    }),
 })
 
-export const { useGetUserQuery } = userApi
+export const { useGetUserQuery, useUpdateUserMutation } = userApi

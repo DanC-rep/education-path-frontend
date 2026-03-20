@@ -17,6 +17,10 @@ export type RoadmapsState = {
    skillsError: string | undefined
    createRoadmapStatus: 'idle' | 'loading' | 'succeeded' | 'failed'
    createRoadmapError: string | undefined
+   completeLessonStatus: 'idle' | 'loading' | 'succeeded' | 'failed'
+   completeLessonError: string | undefined
+   askLessonQuestionStatus: 'idle' | 'loading' | 'succeeded' | 'failed'
+   askLessonQuestionError: string | undefined
 }
 
 const initialState: RoadmapsState = {
@@ -34,6 +38,10 @@ const initialState: RoadmapsState = {
    skillsError: undefined,
    createRoadmapStatus: 'idle',
    createRoadmapError: undefined,
+   completeLessonStatus: 'idle',
+   completeLessonError: undefined,
+   askLessonQuestionStatus: 'idle',
+   askLessonQuestionError: undefined,
 }
 
 export const roadmapsSlice = createSlice({
@@ -54,6 +62,10 @@ export const roadmapsSlice = createSlice({
       selectSkillsError: state => state.skillsError,
       selectCreateRoadmapStatus: state => state.createRoadmapStatus,
       selectCreateRoadmapError: state => state.createRoadmapError,
+      selectCompleteLessonStatus: state => state.completeLessonStatus,
+      selectCompleteLessonError: state => state.completeLessonError,
+      selectAskLessonQuestionStatus: state => state.askLessonQuestionStatus,
+      selectAskLessonQuestionError: state => state.askLessonQuestionError,
    },
    reducers: {
       clearRoadmaps: state => {
@@ -74,6 +86,14 @@ export const roadmapsSlice = createSlice({
       clearCreateRoadmapStatus: state => {
          state.createRoadmapStatus = 'idle'
          state.createRoadmapError = undefined
+      },
+      clearCompleteLessonStatus: state => {
+         state.completeLessonStatus = 'idle'
+         state.completeLessonError = undefined
+      },
+      clearAskLessonQuestionStatus: state => {
+         state.askLessonQuestionStatus = 'idle'
+         state.askLessonQuestionError = undefined
       },
    },
    extraReducers: builder => {

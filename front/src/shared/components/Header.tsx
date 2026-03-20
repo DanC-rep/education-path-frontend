@@ -1,13 +1,19 @@
 import { AppBar, IconButton, Tooltip } from '@mui/material'
-import BookIcon from '@mui/icons-material/Book';
+import BookIcon from '@mui/icons-material/Book'
 import LoginIcon from '@mui/icons-material/Login'
 import PersonIcon from '@mui/icons-material/Person'
 import { NavLink } from 'react-router'
-import { useAppSelector } from '../redux'
+import { useAppDispatch, useAppSelector } from '../redux'
 import { authSelectors } from '../../modules/auth/authSlice'
+import { logoutThunk } from '../../modules/auth/logout/logoutThunk'
 
 export function Header() {
+   const dispatch = useAppDispatch()
    const isAuthenticated = useAppSelector(authSelectors.selectIsAuthenticated)
+
+   const handleLogout = () => {
+      dispatch(logoutThunk())
+   }
 
    return (
       <AppBar position="static" color="primary" elevation={1}>
@@ -34,11 +40,9 @@ export function Header() {
                         </NavLink>
                      </Tooltip>
                      <Tooltip title="выйти">
-                        <NavLink to="/logout">
-                           <IconButton color="inherit">
-                              <LoginIcon />
-                           </IconButton>
-                        </NavLink>
+                        <IconButton color="inherit" onClick={handleLogout}>
+                           <LoginIcon />
+                        </IconButton>
                      </Tooltip>
                   </div>
                )}

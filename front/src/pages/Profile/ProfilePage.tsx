@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../shared/redux'
 import { authSelectors } from '../../modules/auth/authSlice'
 import { usersActions } from '../../modules/users/userSlice'
-import { getUserThunk } from '../../modules/users/getUserThunk'
+import { getUserThunk, updateUserThunk } from '../../modules/users/getUserThunk'
 
 export function ProfilePage() {
    const dispatch = useAppDispatch()
@@ -11,6 +11,8 @@ export function ProfilePage() {
    const currentUser = useAppSelector(state => state.users.currentUser)
    const fetchStatus = useAppSelector(state => state.users.fetchStatus)
    const error = useAppSelector(state => state.users.error)
+   const updateStatus = useAppSelector(state => state.users.updateStatus)
+   const updateError = useAppSelector(state => state.users.updateError)
 
    const [editing, setEditing] = useState(false)
    const [name, setName] = useState('')
@@ -32,7 +34,34 @@ export function ProfilePage() {
          setSurname(currentUser.surname)
          setPatronymic(currentUser.patronymic || '')
       }
+      dispatch(usersActions.clearUpdateStatus())
       setEditing(true)
+   }
+
+   const onSave = async () => {
+      if (!userId) {
+         return
+      }
+
+      const resultAction = await dispatch(
+         updateUserThunk({
+            userId,
+            fullName: {
+               name,
+               surname,
+               patronymic,
+            },
+         }),
+      )
+
+      if (updateUserThunk.fulfilled.match(resultAction)) {
+         setEditing(false)
+      }
+   }
+
+   const onCancel = () => {
+      dispatch(usersActions.clearUpdateStatus())
+      setEditing(false)
    }
 
    if (!userId) return <div className="p-6">Не авторизован</div>
@@ -87,10 +116,14 @@ export function ProfilePage() {
                <div className="flex gap-2 pt-4">
                   {editing ? (
                      <>
-                        <Button variant="contained" color="primary" onClick={() => setEditing(false)}>
-                           Сохранить (пока визуально)
+                        <Button
+                           variant="contained"
+                           color="primary"
+                           onClick={onSave}
+                           disabled={updateStatus === 'loading'}>
+                           {updateStatus === 'loading' ? 'Сохранение...' : 'Сохранить'}
                         </Button>
-                        <Button variant="outlined" onClick={() => setEditing(false)}>
+                        <Button variant="outlined" onClick={onCancel} disabled={updateStatus === 'loading'}>
                            Отмена
                         </Button>
                      </>
@@ -100,6 +133,10 @@ export function ProfilePage() {
                      </Button>
                   )}
                </div>
+
+               {editing && updateStatus === 'failed' && updateError && (
+                  <div className="text-red-600">{updateError}</div>
+               )}
             </div>
          )}
       </div>

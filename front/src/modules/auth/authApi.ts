@@ -65,7 +65,14 @@ export const authApi = baseApi.injectEndpoints({
          }),
          transformResponse: (res: Envelope<RefreshResponse>) => res.result!,
       }),
+      logout: builder.mutation<void, { userId: string }>({
+         query: ({ userId }) => ({
+            url: `/Accounts/${encodeURIComponent(userId)}/logout`,
+            method: 'POST',
+         }),
+         transformResponse: () => undefined,
+      }),
    }),
 })
 
-export const { useLoginMutation, useRefreshTokenMutation, useRegisterMutation } = authApi
+export const { useLoginMutation, useRefreshTokenMutation, useRegisterMutation, useLogoutMutation } = authApi

@@ -81,5 +81,6 @@ const baseQueryWithRefresh: typeof baseQuery = async (args, api, extraOptions) =
 
 export const baseApi = createApi({
    baseQuery: baseQueryWithRefresh,
+   tagTypes: ['Roadmaps', 'RoadmapDetails', 'LessonDetails', 'User', 'Tests'],
    endpoints: () => ({}),
 })

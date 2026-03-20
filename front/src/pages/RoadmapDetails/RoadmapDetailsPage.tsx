@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useCallback } from 'react'
+import { useEffect, useMemo, useCallback, type MouseEvent } from 'react'
 import { Link, useParams, useNavigate } from 'react-router'
 import { CircularProgress } from '@mui/material'
 import ReactFlow, {
@@ -11,7 +11,8 @@ import ReactFlow, {
    Position,
    NodeProps,
    Handle,
-   OnNodeClick,
+   useNodesState,
+   useEdgesState,
 } from 'reactflow'
 import dagre from 'dagrejs'
 import 'reactflow/dist/style.css'
@@ -45,14 +46,14 @@ const lessonTypeBorders: Record<LessonType, string> = {
 function LessonNode({ data }: NodeProps<LessonNodeData>) {
    const statusStyle = data.isCompleted ? 'text-emerald-200' : 'text-slate-300'
    const statusIconStyle = data.isCompleted ? 'text-emerald-300' : 'text-slate-500'
-   
+
    return (
       <div
          className={`block w-[220px] cursor-pointer rounded-xl border bg-slate-900/80 px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${lessonTypeBorders[data.type]}`}>
          {/* Handle для входящих связей (сверху) */}
-         <Handle 
-            type="target" 
-            position={Position.Top} 
+         <Handle
+            type="target"
+            position={Position.Top}
             className="!bg-slate-500 !w-2 !h-2"
             style={{ pointerEvents: 'none' }}
          />
@@ -73,9 +74,9 @@ function LessonNode({ data }: NodeProps<LessonNodeData>) {
          </div>
 
          {/* Handle для исходящих связей (снизу) */}
-         <Handle 
-            type="source" 
-            position={Position.Bottom} 
+         <Handle
+            type="source"
+            position={Position.Bottom}
             className="!bg-slate-500 !w-2 !h-2"
             style={{ pointerEvents: 'none' }}
          />
@@ -129,8 +130,8 @@ const buildLayout = (lessons: RoadmapLesson[]) => {
 
    // Добавляем все узлы
    lessons.forEach(lesson => {
-      graph.setNode(lesson.id, { 
-         width: nodeWidth, 
+      graph.setNode(lesson.id, {
+         width: nodeWidth,
          height: nodeHeight,
          // Добавляем отступы для обхода
          paddingLeft: 20,
@@ -197,19 +198,27 @@ export function RoadmapDetailsPage() {
       }
    }, [dispatch, id])
 
-   const { nodes, edges } = useMemo(() => {
+   const { nodes: layoutNodes, edges: layoutEdges } = useMemo(() => {
       if (!roadmap?.lessons?.length) {
          return { nodes: [], edges: [] }
       }
       return buildLayout(roadmap.lessons)
    }, [roadmap])
 
+   const [nodes, setNodes, onNodesChange] = useNodesState<LessonNodeData>([])
+   const [edges, setEdges, onEdgesChange] = useEdgesState([])
+
+   useEffect(() => {
+      setNodes(layoutNodes)
+      setEdges(layoutEdges)
+   }, [layoutNodes, layoutEdges, setNodes, setEdges])
+
    // Обработчик клика на узел
-   const onNodeClick: OnNodeClick = useCallback(
-      (event, node) => {
+   const onNodeClick = useCallback(
+      (_event: MouseEvent, node: Node<LessonNodeData>) => {
          navigate(`/lessons/${node.data.id}`)
       },
-      [navigate]
+      [navigate],
    )
 
    return (
@@ -274,12 +283,14 @@ export function RoadmapDetailsPage() {
                <ReactFlow
                   nodes={nodes}
                   edges={edges}
+                  onNodesChange={onNodesChange}
+                  onEdgesChange={onEdgesChange}
                   nodeTypes={nodeTypes}
                   onNodeClick={onNodeClick}
                   fitView
                   fitViewOptions={{ padding: 0.2 }}
-                  nodesDraggable={false}
-                  nodesConnectable={false}
+                  nodesDraggable={true}
+                  nodesConnectable={true}
                   elementsSelectable={true}
                   zoomOnScroll={true}
                   panOnScroll={false}

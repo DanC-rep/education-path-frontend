@@ -44,9 +44,19 @@ export type LessonDetails = {
    content: string
    isCompleted: boolean
    type: LessonType
+   testId: string | null
    links: string[]
    nextLessons: LessonLink[]
    previousLessons: LessonLink[]
+}
+
+export type LessonQuestionRequest = {
+   lessonId: string
+   question: string
+}
+
+export type LessonQuestionResponse = {
+   answer: string
 }
 
 export type Skill = {
@@ -80,6 +90,7 @@ export const roadmapApi = baseApi.injectEndpoints({
             url: `LearningPaths/roadmaps/user/${userId}`,
             method: 'GET',
          }),
+         providesTags: ['Roadmaps'],
          transformResponse: (res: Envelope<RoadmapsResponse>) => res.result!,
       }),
       getRoadmapById: builder.query<RoadmapDetails, string>({
@@ -87,6 +98,10 @@ export const roadmapApi = baseApi.injectEndpoints({
             url: `LearningPaths/roadmaps/${roadmapId}`,
             method: 'GET',
          }),
+         providesTags: (_result, _error, roadmapId) => [
+            { type: 'RoadmapDetails', id: roadmapId },
+            { type: 'RoadmapDetails', id: 'LIST' },
+         ],
          transformResponse: (res: Envelope<RoadmapDetails>) => res.result!,
       }),
       getLessonById: builder.query<LessonDetails, string>({
@@ -94,7 +109,19 @@ export const roadmapApi = baseApi.injectEndpoints({
             url: `LearningPaths/roadmaps/lesson/${lessonId}`,
             method: 'GET',
          }),
+         providesTags: (_result, _error, lessonId) => [
+            { type: 'LessonDetails', id: lessonId },
+            { type: 'LessonDetails', id: 'LIST' },
+         ],
          transformResponse: (res: Envelope<LessonDetails>) => res.result!,
+      }),
+      askLessonQuestion: builder.mutation<LessonQuestionResponse, LessonQuestionRequest>({
+         query: ({ lessonId, question }) => ({
+            url: `LearningPaths/roadmaps/lesson/${lessonId}/question`,
+            method: 'GET',
+            params: { question },
+         }),
+         transformResponse: (res: Envelope<LessonQuestionResponse>) => res.result!,
       }),
       getSkills: builder.query<SkillsResponse, void>({
          query: () => ({
@@ -109,7 +136,20 @@ export const roadmapApi = baseApi.injectEndpoints({
             method: 'POST',
             body: data,
          }),
+         invalidatesTags: ['Roadmaps'],
          transformResponse: (res: Envelope<CreateRoadmapResponse>) => res.result!,
+      }),
+      completeLesson: builder.mutation<void, string>({
+         query: lessonId => ({
+            url: `LearningPaths/roadmaps/lesson/${lessonId}/complete`,
+            method: 'PUT',
+         }),
+         invalidatesTags: (_result, _error, lessonId) => [
+            'Roadmaps',
+            { type: 'RoadmapDetails', id: 'LIST' },
+            { type: 'LessonDetails', id: lessonId },
+            { type: 'LessonDetails', id: 'LIST' },
+         ],
       }),
    }),
 })
@@ -118,6 +158,8 @@ export const {
    useGetUserRoadmapsQuery,
    useGetRoadmapByIdQuery,
    useGetLessonByIdQuery,
+   useAskLessonQuestionMutation,
    useGetSkillsQuery,
    useCreateRoadmapMutation,
+   useCompleteLessonMutation,
 } = roadmapApi

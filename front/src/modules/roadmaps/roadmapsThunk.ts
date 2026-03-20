@@ -7,6 +7,8 @@ import {
    RoadmapDetails,
    RoadmapsResponse,
    LessonDetails,
+   LessonQuestionRequest,
+   LessonQuestionResponse,
    SkillsResponse,
    CreateRoadmapRequest,
    CreateRoadmapResponse,
@@ -83,6 +85,34 @@ export const createRoadmapThunk = createAppAsyncThunk<CreateRoadmapResponse, Cre
    },
 )
 
+export const completeLessonThunk = createAppAsyncThunk<void, string>(
+   'roadmaps/completeLesson',
+   async (lessonId, { dispatch, rejectWithValue }) => {
+      try {
+         const response = await dispatch(roadmapApi.endpoints.completeLesson.initiate(lessonId)).unwrap()
+
+         return response
+      } catch (error) {
+         const errorMessage = getErrorMessage(error as FetchBaseQueryError | undefined)
+         return rejectWithValue(errorMessage)
+      }
+   },
+)
+
+export const askLessonQuestionThunk = createAppAsyncThunk<LessonQuestionResponse, LessonQuestionRequest>(
+   'roadmaps/askLessonQuestion',
+   async (data, { dispatch, rejectWithValue }) => {
+      try {
+         const response = await dispatch(roadmapApi.endpoints.askLessonQuestion.initiate(data)).unwrap()
+
+         return response
+      } catch (error) {
+         const errorMessage = getErrorMessage(error as FetchBaseQueryError | undefined)
+         return rejectWithValue(errorMessage)
+      }
+   },
+)
+
 export const roadmapsCases = (builder: ActionReducerMapBuilder<RoadmapsState>) => {
    builder
       .addCase(getUserRoadmapsThunk.pending, state => {
@@ -148,5 +178,29 @@ export const roadmapsCases = (builder: ActionReducerMapBuilder<RoadmapsState>) =
       .addCase(createRoadmapThunk.rejected, (state, action) => {
          state.createRoadmapStatus = 'failed'
          state.createRoadmapError = action.payload
+      })
+      .addCase(completeLessonThunk.pending, state => {
+         state.completeLessonStatus = 'loading'
+         state.completeLessonError = undefined
+      })
+      .addCase(completeLessonThunk.fulfilled, state => {
+         state.completeLessonStatus = 'succeeded'
+         state.completeLessonError = undefined
+      })
+      .addCase(completeLessonThunk.rejected, (state, action) => {
+         state.completeLessonStatus = 'failed'
+         state.completeLessonError = action.payload
+      })
+      .addCase(askLessonQuestionThunk.pending, state => {
+         state.askLessonQuestionStatus = 'loading'
+         state.askLessonQuestionError = undefined
+      })
+      .addCase(askLessonQuestionThunk.fulfilled, state => {
+         state.askLessonQuestionStatus = 'succeeded'
+         state.askLessonQuestionError = undefined
+      })
+      .addCase(askLessonQuestionThunk.rejected, (state, action) => {
+         state.askLessonQuestionStatus = 'failed'
+         state.askLessonQuestionError = action.payload
       })
 }
